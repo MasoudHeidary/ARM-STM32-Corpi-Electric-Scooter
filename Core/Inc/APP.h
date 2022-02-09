@@ -2,7 +2,8 @@
  * APP.h
  *
  *  Created on: Mar 10, 2020
- *      Author: MH
+ *  @author: Masoud Heidary
+ *  @address: MasoudHeidaryDeveloper@gmail.com
  */
 #pragma once
 
