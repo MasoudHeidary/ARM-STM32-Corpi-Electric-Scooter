@@ -23,8 +23,8 @@
 // (LEDs number + 2) * (color size _ 24bit _ 3byte)
 #define __WS2812_TimerBufLen	__WS2812_LEDsCount * 24 + __WS2812_DelayBufLen
 
-#define __WS2812_ZeroTime 	16	// 0.4us * 48MHz
-#define __WS2812_OneTime	32	// 0.8us * 48MHz
+#define __WS2812_ZeroTime 	16	// 0.4us * 40MHz
+#define __WS2812_OneTime	32	// 0.8us * 40MHz
 
 /* variables -----------------------------------------------------------------*/
 bool __WS2812_DMAIsReady;

@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "WS2812.h"
+//#include "APP.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,11 +40,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc;
-DMA_HandleTypeDef hdma_adc;
-
-TIM_HandleTypeDef htim1;
-DMA_HandleTypeDef hdma_tim1_ch1;
+TIM_HandleTypeDef htim17;
+DMA_HandleTypeDef hdma_tim17_ch1_up;
 
 /* USER CODE BEGIN PV */
 
@@ -52,20 +50,18 @@ DMA_HandleTypeDef hdma_tim1_ch1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_TIM1_Init(void);
 static void MX_DMA_Init(void);
-static void MX_ADC_Init(void);
+static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
-{
-	if (htim->Instance == TIM1) {
-		HAL_TIM_PWM_Stop_DMA(&htim1, TIM_CHANNEL_1);
-			WS2812_DMACallBack();
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == TIM17) {
+		HAL_TIM_PWM_Stop_DMA(&htim17, TIM_CHANNEL_1);
+		WS2812_DMACallBack();
 	}
 }
 /* USER CODE END 0 */
@@ -98,10 +94,21 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM1_Init();
   MX_DMA_Init();
-  MX_ADC_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
+
+//  CORPI_init();
+  WS2812_init();
+
+  WS2812_colorStruct r = (WS2812_colorStruct) {10, 0, 0};
+  WS2812_colorStruct g = (WS2812_colorStruct) {0, 10, 0};
+  WS2812_colorStruct b = (WS2812_colorStruct) {0, 0, 10};
+
+  WS2812_setOne(r, 0);
+  	  WS2812_setOne(g, 1);
+  	  WS2812_setOne(b, 2);
+//  WS2812_refresh(htim1, TIM_CHANNEL_1);
 
   /* USER CODE END 2 */
 
@@ -109,6 +116,71 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+//	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+	  // --------------------------------------- set 3 leds
+	  // --------------------------------------- set 3 leds
+	  WS2812_setOne(r, 0);
+	  WS2812_setOne(g, 1);
+	  WS2812_setOne(b, 2);
+
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(3000);
+
+	  // --------------------------------------- rotate next
+	  WS2812_rotateNext();
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  WS2812_rotateNext();
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  WS2812_rotateNext();
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  // --------------------------------------- rotate previous
+	  WS2812_rotatePrevious();
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  WS2812_rotatePrevious();
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  WS2812_rotatePrevious();
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  // --------------------------------------- shift next
+	  WS2812_shiftNext(r);
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  WS2812_shiftNext(r);
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  // --------------------------------------- reset to shift previous
+	  WS2812_setOne(r, 0);
+	  WS2812_setOne(g, 1);
+	  WS2812_setOne(b, 2);
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  WS2812_shiftPrevious(r);
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+	  WS2812_shiftPrevious(r);
+	  WS2812_refresh(htim17, TIM_CHANNEL_1);
+	  HAL_Delay(1000);
+
+//	  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 1);
+//	  HAL_Delay(500);
+//	  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 0);
+//	  HAL_Delay(500);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -153,107 +225,35 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief ADC Initialization Function
+  * @brief TIM17 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_ADC_Init(void)
+static void MX_TIM17_Init(void)
 {
 
-  /* USER CODE BEGIN ADC_Init 0 */
+  /* USER CODE BEGIN TIM17_Init 0 */
 
-  /* USER CODE END ADC_Init 0 */
+  /* USER CODE END TIM17_Init 0 */
 
-  ADC_ChannelConfTypeDef sConfig = {0};
-
-  /* USER CODE BEGIN ADC_Init 1 */
-
-  /* USER CODE END ADC_Init 1 */
-  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-  */
-  hadc.Instance = ADC1;
-  hadc.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-  hadc.Init.Resolution = ADC_RESOLUTION_8B;
-  hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
-  hadc.Init.EOCSelection = ADC_EOC_SEQ_CONV;
-  hadc.Init.LowPowerAutoWait = DISABLE;
-  hadc.Init.LowPowerAutoPowerOff = DISABLE;
-  hadc.Init.ContinuousConvMode = ENABLE;
-  hadc.Init.DiscontinuousConvMode = DISABLE;
-  hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc.Init.DMAContinuousRequests = ENABLE;
-  hadc.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  if (HAL_ADC_Init(&hadc) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure for the selected ADC regular channel to be converted.
-  */
-  sConfig.Channel = ADC_CHANNEL_3;
-  sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-  sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure for the selected ADC regular channel to be converted.
-  */
-  sConfig.Channel = ADC_CHANNEL_4;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN ADC_Init 2 */
-
-  /* USER CODE END ADC_Init 2 */
-
-}
-
-/**
-  * @brief TIM1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM1_Init(void)
-{
-
-  /* USER CODE BEGIN TIM1_Init 0 */
-
-  /* USER CODE END TIM1_Init 0 */
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
-  /* USER CODE BEGIN TIM1_Init 1 */
+  /* USER CODE BEGIN TIM17_Init 1 */
 
-  /* USER CODE END TIM1_Init 1 */
-  htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 50-1;
-  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  /* USER CODE END TIM17_Init 1 */
+  htim17.Instance = TIM17;
+  htim17.Init.Prescaler = 0;
+  htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim17.Init.Period = 50-1;
+  htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim17.Init.RepetitionCounter = 0;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
   {
     Error_Handler();
   }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  if (HAL_TIM_PWM_Init(&htim17) != HAL_OK)
   {
     Error_Handler();
   }
@@ -264,7 +264,7 @@ static void MX_TIM1_Init(void)
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim17, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -275,14 +275,14 @@ static void MX_TIM1_Init(void)
   sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
   sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
   sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim17, &sBreakDeadTimeConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN TIM1_Init 2 */
+  /* USER CODE BEGIN TIM17_Init 2 */
 
-  /* USER CODE END TIM1_Init 2 */
-  HAL_TIM_MspPostInit(&htim1);
+  /* USER CODE END TIM17_Init 2 */
+  HAL_TIM_MspPostInit(&htim17);
 
 }
 
@@ -299,9 +299,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel2_3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
 
 }
 
