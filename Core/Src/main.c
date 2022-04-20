@@ -21,8 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "WS2812.h"
-//#include "APP.h"
+#include "APP.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,12 +57,7 @@ static void MX_TIM17_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM17) {
-		HAL_TIM_PWM_Stop_DMA(&htim17, TIM_CHANNEL_1);
-		WS2812_DMACallBack();
-	}
-}
+
 /* USER CODE END 0 */
 
 /**
@@ -97,89 +91,13 @@ int main(void)
   MX_DMA_Init();
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
-
-//  CORPI_init();
-  WS2812_init();
-
-  WS2812_colorStruct r = (WS2812_colorStruct) {10, 0, 0};
-  WS2812_colorStruct g = (WS2812_colorStruct) {0, 10, 0};
-  WS2812_colorStruct b = (WS2812_colorStruct) {0, 0, 10};
-
-  WS2812_setOne(r, 0);
-  	  WS2812_setOne(g, 1);
-  	  WS2812_setOne(b, 2);
-//  WS2812_refresh(htim1, TIM_CHANNEL_1);
-
+  CORPI_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-	  // --------------------------------------- set 3 leds
-	  // --------------------------------------- set 3 leds
-	  WS2812_setOne(r, 0);
-	  WS2812_setOne(g, 1);
-	  WS2812_setOne(b, 2);
-
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(3000);
-
-	  // --------------------------------------- rotate next
-	  WS2812_rotateNext();
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  WS2812_rotateNext();
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  WS2812_rotateNext();
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  // --------------------------------------- rotate previous
-	  WS2812_rotatePrevious();
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  WS2812_rotatePrevious();
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  WS2812_rotatePrevious();
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  // --------------------------------------- shift next
-	  WS2812_shiftNext(r);
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  WS2812_shiftNext(r);
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  // --------------------------------------- reset to shift previous
-	  WS2812_setOne(r, 0);
-	  WS2812_setOne(g, 1);
-	  WS2812_setOne(b, 2);
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  WS2812_shiftPrevious(r);
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-	  WS2812_shiftPrevious(r);
-	  WS2812_refresh(htim17, TIM_CHANNEL_1);
-	  HAL_Delay(1000);
-
-//	  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 1);
-//	  HAL_Delay(500);
-//	  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 0);
-//	  HAL_Delay(500);
 
     /* USER CODE END WHILE */
 
