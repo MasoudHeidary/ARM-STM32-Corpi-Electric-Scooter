@@ -33,6 +33,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 void APP_init(void) {
+	HAL_GPIO_WritePin(FrontLed_GPIO_Port, FrontLed_Pin, 0);
+
 	WS2812_init();
 
 	WS2812_setAll(APP_ColorOff);
@@ -75,15 +77,28 @@ void __APP_RX(void) {
 //			break;
 	}
 
-//	switch (APP.FrontLed) {
-//		case value:
-//
-//			break;
-//		default:
-//			break;
-//	}
+	switch (APP.FrontLed) {
+		case APP_FrontLedOff:
+			HAL_GPIO_WritePin(FrontLed_GPIO_Port, FrontLed_Pin, 0);
+			break;
+
+		case APP_FrontLedOn:
+			HAL_GPIO_WritePin(FrontLed_GPIO_Port, FrontLed_Pin, 1);
+			break;
+
+		default:
+			HAL_GPIO_WritePin(FrontLed_GPIO_Port, FrontLed_Pin, 0);
+			break;
+	}
 }
 
 void APP_while(void) {
+	static uint32_t front_led_timer = 0;
+
+	if (APP.FrontLed == APP_FrontLedToggle)
+		if (HAL_GetTick() - front_led_timer >= APP_FrontLedToggleDelay) {
+				HAL_GPIO_TogglePin(FrontLed_GPIO_Port, FrontLed_Pin);
+				front_led_timer = HAL_GetTick();
+		}
 
 }

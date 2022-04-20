@@ -59,6 +59,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define FrontLed_Pin GPIO_PIN_4
+#define FrontLed_GPIO_Port GPIOA
 #define WS2812_Pin GPIO_PIN_7
 #define WS2812_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */

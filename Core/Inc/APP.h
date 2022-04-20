@@ -30,6 +30,12 @@ DMA_HandleTypeDef hdma_usart1_tx;
 #define APP_LockStateFree 1
 #define APP_LockStateFind 2
 
+// Front Led
+#define APP_FrontLedOff 0
+#define APP_FrontLedOn	1
+#define APP_FrontLedToggle 2
+#define APP_FrontLedToggleDelay 150
+
 // colors
 #define APP_ColorOff (WS2812_colorStruct) {0, 0, 0}
 #define APP_ColorLock (WS2812_colorStruct) {10, 0, 0}
