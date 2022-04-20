@@ -16,6 +16,15 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
 	}
 }
 
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+	if (hadc->Instance == ADC1) {
+		APP.Throttle = (uint8_t) (APP.ADCBuffer[0]);
+
+		APP.Brake = APP.ADCBuffer[1] > APP_BrakeFreeVoltage ?
+				APP_BrakeTaken : APP_BrakeFree;
+	}
+}
+
 /* RX Interrupts ------------------------------------------------------------------*/
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == USART1) {
@@ -33,27 +42,25 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 void APP_init(void) {
+	APP.Throttle = 0;
+	APP.Brake = APP_BrakeTaken;
+	APP.Lock = APP_LockStateLock;
+	APP.FrontLed = APP_FrontLedOff;
+
 	HAL_GPIO_WritePin(FrontLed_GPIO_Port, FrontLed_Pin, 0);
 
 	WS2812_init();
-
 	WS2812_setAll(APP_ColorOff);
 	WS2812_refresh(htim17, TIM_CHANNEL_1);
 
 	HAL_UART_Receive_DMA(&huart1, APP.RXBuffer, APP_RXBufferLen);
+
+	HAL_ADC_Start_DMA(&hadc, APP.ADCBuffer, APP_ADCBufferLen);
 }
 
 void __APP_RX(void) {
-	APP.Lock =
-			(APP.RXBuffer[APP_RXProtocol_PositionLock]
-			>> APP_RXProtocol_ShiftLock)
-			& APP_RXProtocol_AndLock;
-
-	APP.FrontLed =
-			(APP.RXBuffer[APP_RXProtocol_PositionFrontLed]
-			>> APP_RXProtocol_ShiftFrontLed)
-			& APP_RXProtocol_AndFrontLed;
-
+	APP.Lock = APP.RXBuffer[1] & 0x03;
+	APP.FrontLed = (APP.RXBuffer[1] >> 2) & 0x03;
 
 	switch (APP.Lock) {
 		case APP_LockStateLock:
@@ -71,10 +78,10 @@ void __APP_RX(void) {
 			WS2812_refresh(htim17, WS2812_Channel);
 			break;
 
-//		default:
-//			WS2812_setAll(APP_ColorOff);
-//			WS2812_refresh(htim17, WS2812_Channel);
-//			break;
+		default:
+			WS2812_setAll(APP_ColorOff);
+			WS2812_refresh(htim17, WS2812_Channel);
+			break;
 	}
 
 	switch (APP.FrontLed) {
@@ -95,13 +102,30 @@ void __APP_RX(void) {
 	}
 }
 
+void __APP_TX(void) {
+	if (APP.Lock != APP_LockStateFree)
+		return;
+
+	APP.TXBuffer[0] = APP_TXHeader;
+	APP.TXBuffer[1] = APP.Brake ? 0 : APP.Throttle;
+	APP.TXBuffer[2] = (uint8_t)APP.Brake;
+
+	HAL_UART_Transmit_DMA(&huart1, APP.TXBuffer, APP_TXBufferLen);
+}
+
 void APP_while(void) {
 	static uint32_t front_led_timer = 0;
+	static uint32_t TX_timer = 0;
 
 	if (APP.FrontLed == APP_FrontLedToggle)
 		if (HAL_GetTick() - front_led_timer >= APP_FrontLedToggleDelay) {
 				HAL_GPIO_TogglePin(FrontLed_GPIO_Port, FrontLed_Pin);
 				front_led_timer = HAL_GetTick();
 		}
+
+	if (HAL_GetTick() - TX_timer >= APP_TXDelay) {
+		__APP_TX();
+		TX_timer = HAL_GetTick();
+	}
 
 }

@@ -6,14 +6,26 @@ void setup()
 {
   Serial.begin(9600);
   mySerial.begin(9600);
+
+  Serial.println("TEST Branch for CORPI");
+  Serial.println("0 -> LOCK: Lock");
+  Serial.println("1 -> LOCK: Free");
+  Serial.println("2 -> LOCK: Find");
+  Serial.println("7 -> FRONT LED: Off");
+  Serial.println("8 -> FRONT LED: On");
+  Serial.println("9 -> FRONT LED: Toggle");
 }
 
 char corpi = 0;
 void loop()
 {
-  mySerial.write('@');
-  mySerial.write(corpi);
-  delay(1000);
+  while(mySerial.available()){
+    unsigned char d = mySerial.read();
+
+    Serial.print((char)d);
+    Serial.print("\t::\t");
+    Serial.println((int)d);
+  }
 }
 
 void serialEvent() {
@@ -49,4 +61,7 @@ void serialEvent() {
       bitWrite(corpi, 3, 1);
       Serial.println("Front Led: toggle");
     }
+
+    mySerial.write('@');
+    mySerial.write(corpi);
 }

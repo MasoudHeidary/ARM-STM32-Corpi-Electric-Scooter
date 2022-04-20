@@ -16,6 +16,9 @@
 #include "main.h"
 
 /* Includes ------------------------------------------------------------------*/
+ADC_HandleTypeDef hadc;
+DMA_HandleTypeDef hdma_adc;
+
 TIM_HandleTypeDef htim17;
 DMA_HandleTypeDef hdma_tim17_ch1_up;
 #define WS2812_Channel TIM_CHANNEL_1
@@ -36,28 +39,40 @@ DMA_HandleTypeDef hdma_usart1_tx;
 #define APP_FrontLedToggle 2
 #define APP_FrontLedToggleDelay 150
 
-// colors
+// Colors
 #define APP_ColorOff (WS2812_colorStruct) {0, 0, 0}
 #define APP_ColorLock (WS2812_colorStruct) {10, 0, 0}
 #define APP_ColorFree (WS2812_colorStruct) {0, 10, 0}
 #define APP_ColorFind (WS2812_colorStruct) {0, 0, 10}
 
+// Brake
+#define APP_BrakeFreeVoltage 50
+#define APP_BrakeFree 0
+#define APP_BrakeTaken 1
+
+
 // RX
 #define APP_RXBufferLen 2
 #define APP_RXHeader '@'
 
-#define APP_RXProtocol_PositionLock 1
-#define APP_RXProtocol_ShiftLock 0
-#define APP_RXProtocol_AndLock 0x03
+// TX
+#define APP_TXBufferLen 3
+#define APP_TXHeader '@'
+#define APP_TXDelay 5000
 
-#define APP_RXProtocol_PositionFrontLed 1
-#define APP_RXProtocol_ShiftFrontLed 2
-#define APP_RXProtocol_AndFrontLed 0x03
+// ADC
+#define APP_ADCBufferLen 2
+
 
 /* Includes ------------------------------------------------------------------*/
 
 struct {
+	uint32_t ADCBuffer[APP_ADCBufferLen];
+	uint8_t Throttle;
+	bool Brake;
+
 	uint8_t RXBuffer[APP_RXBufferLen];
+	uint8_t TXBuffer[APP_TXBufferLen];
 
 	uint8_t Lock;
 	uint8_t FrontLed;
@@ -68,6 +83,7 @@ void APP_init(void);
 void APP_while(void);
 
 void __APP_RX(void);
+void __APP_TX(void);
 /* Includes ------------------------------------------------------------------*/
 
 /* Includes ------------------------------------------------------------------*/

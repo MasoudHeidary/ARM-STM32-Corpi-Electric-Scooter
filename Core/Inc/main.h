@@ -59,6 +59,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Throttle_Pin GPIO_PIN_0
+#define Throttle_GPIO_Port GPIOA
+#define Brake_Pin GPIO_PIN_1
+#define Brake_GPIO_Port GPIOA
 #define FrontLed_Pin GPIO_PIN_4
 #define FrontLed_GPIO_Port GPIOA
 #define WS2812_Pin GPIO_PIN_7
