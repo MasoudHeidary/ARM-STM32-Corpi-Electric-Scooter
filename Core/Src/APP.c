@@ -86,6 +86,9 @@ void __APP_RX(void) {
 			HAL_GPIO_WritePin(FrontLed_GPIO_Port, FrontLed_Pin, 1);
 			break;
 
+		case APP_FrontLedToggle:
+			break;
+
 		default:
 			HAL_GPIO_WritePin(FrontLed_GPIO_Port, FrontLed_Pin, 0);
 			break;
