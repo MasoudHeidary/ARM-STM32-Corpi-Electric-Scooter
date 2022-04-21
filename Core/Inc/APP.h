@@ -15,7 +15,7 @@
 #include "WS2812.h"
 #include "main.h"
 
-/* Includes ------------------------------------------------------------------*/
+/* main.c --------------------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
 DMA_HandleTypeDef hdma_adc;
 
@@ -27,8 +27,8 @@ UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
 
-/* Includes ------------------------------------------------------------------*/
-// Lock
+/* Defines ------------------------------------------------------------------*/
+// Lock States
 #define APP_LockStateLock 0
 #define APP_LockStateFree 1
 #define APP_LockStateFind 2
@@ -50,22 +50,26 @@ DMA_HandleTypeDef hdma_usart1_tx;
 #define APP_BrakeFree 0
 #define APP_BrakeTaken 1
 
-
 // RX
+// ﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏
+// | RX Header(8bit) | 00 00 FrontLED(2) Lock(2) |
+// ﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋
 #define APP_RXBufferLen 2
 #define APP_RXHeader '@'
 
 // TX
+// ﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏
+// | TX Header(8bit) | Throttle(8bit) | 00 00 00 Brake(1bit) |
+// ﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋
 #define APP_TXBufferLen 3
 #define APP_TXHeader '@'
-#define APP_TXDelay 5000
+#define APP_TXDelay 100
 
 // ADC
 #define APP_ADCBufferLen 2
 
 
-/* Includes ------------------------------------------------------------------*/
-
+/* Variables ------------------------------------------------------------------*/
 struct {
 	uint32_t ADCBuffer[APP_ADCBufferLen];
 	uint8_t Throttle;
@@ -78,24 +82,15 @@ struct {
 	uint8_t FrontLed;
 
 } APP;
-/* Includes ------------------------------------------------------------------*/
+
+/* Functions ------------------------------------------------------------------*/
 void APP_init(void);
 void APP_while(void);
 
 void __APP_RX(void);
 void __APP_TX(void);
-/* Includes ------------------------------------------------------------------*/
 
-/* Includes ------------------------------------------------------------------*/
 
-/* Includes ------------------------------------------------------------------*/
-
-/* Includes ------------------------------------------------------------------*/
-
-/* Includes ------------------------------------------------------------------*/
-
-/* Includes ------------------------------------------------------------------*/
-
-/* Includes ------------------------------------------------------------------*/
+/* END -------------------------------------------------------------------------*/
 
 #endif /* INC_APP_H_ */
